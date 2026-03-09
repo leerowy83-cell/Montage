@@ -4,7 +4,7 @@ export const Sidebar = (chats) => `
   <div class="sidebar">
     <header class="sidebar-header">
       <img src="https://i.pravatar.cc/150?u=me" class="avatar" />
-      <div>
+      <div style="display: flex;">
         ${IconButton('fas fa-circle-notch')}
         ${IconButton('fas fa-comment-alt')}
         ${IconButton('fas fa-ellipsis-v')}

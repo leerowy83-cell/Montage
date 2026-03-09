@@ -4,3 +4,7 @@
 .search-bar { background: var(--wa-bg); border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; }
 .search-bar input { background: transparent; border: none; outline: none; margin-left: 10px; width: 100%; }
 .chat-list { flex: 1; overflow-y: auto; }
+
+@media (max-width: 768px) {
+  .sidebar { width: 100%; min-width: 100%; }
+}

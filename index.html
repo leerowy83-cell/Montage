@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>WhatsApp Clone</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="styles/variables.css">
@@ -26,6 +26,9 @@
                 const messages = await chatService.getMessages(id);
                 appStore.setState({ activeChat: chat, messages });
             },
+            closeChat: () => {
+                appStore.setState({ activeChat: null, messages: [] });
+            },
             sendMessage: (e) => {
                 e.preventDefault();
                 const input = document.getElementById('msgInput');
@@ -45,11 +48,19 @@
                 
                 // Scroll to bottom
                 setTimeout(() => {
-                    const container = document.querySelector('.chat-messages');
+                    const container = document.getElementById('chatMessages');
                     if (container) container.scrollTop = container.scrollHeight;
                 }, 0);
             }
         };
+
+        // Handle window resize for mobile state
+        window.addEventListener('resize', () => {
+            const isMobile = window.innerWidth <= 768;
+            if (isMobile !== appStore.getState().isMobileView) {
+                appStore.setState({ isMobileView: isMobile });
+            }
+        });
 
         appStore.subscribe(renderApp);
 
