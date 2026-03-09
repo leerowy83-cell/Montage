@@ -1,0 +1,6 @@
+.sidebar { width: 30%; min-width: 350px; background: white; border-right: 1px solid var(--wa-border); display: flex; flex-direction: column; }
+.sidebar-header { height: 60px; background: var(--wa-bg); display: flex; align-items: center; justify-content: space-between; padding: 0 16px; }
+.search-container { padding: 8px 12px; }
+.search-bar { background: var(--wa-bg); border-radius: 8px; padding: 6px 12px; display: flex; align-items: center; }
+.search-bar input { background: transparent; border: none; outline: none; margin-left: 10px; width: 100%; }
+.chat-list { flex: 1; overflow-y: auto; }

@@ -1,5 +1,65 @@
 <!DOCTYPE html>
 <html lang="en">
-<head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0" /><title>GramFlow</title></head>
-<body><div id="root"></div><script type="module" src="/src/main.tsx"></script></body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Clone</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="styles/variables.css">
+    <link rel="stylesheet" href="styles/global.css">
+    <link rel="stylesheet" href="styles/components.css">
+    <link rel="stylesheet" href="styles/sidebar.css">
+    <link rel="stylesheet" href="styles/chat-window.css">
+</head>
+<body>
+    <div id="app"></div>
+    <script type="module">
+        import { appStore } from './state/appState.js';
+        import { chatService } from './services/chatService.js';
+        import { renderApp } from './routes/appRoutes.js';
+        import { formatDate } from './utils/formatDate.js';
+
+        window.app = {
+            selectChat: async (id) => {
+                const state = appStore.getState();
+                const chat = state.chats.find(c => c.id === id);
+                const messages = await chatService.getMessages(id);
+                appStore.setState({ activeChat: chat, messages });
+            },
+            sendMessage: (e) => {
+                e.preventDefault();
+                const input = document.getElementById('msgInput');
+                if (!input.value.trim()) return;
+                
+                const newMessage = {
+                    id: Date.now(),
+                    text: input.value,
+                    sender: 'Me',
+                    timestamp: formatDate(new Date()),
+                    isMe: true
+                };
+                
+                const state = appStore.getState();
+                appStore.setState({ messages: [...state.messages, newMessage] });
+                input.value = '';
+                
+                // Scroll to bottom
+                setTimeout(() => {
+                    const container = document.querySelector('.chat-messages');
+                    if (container) container.scrollTop = container.scrollHeight;
+                }, 0);
+            }
+        };
+
+        appStore.subscribe(renderApp);
+
+        async function init() {
+            const chats = await chatService.getChats();
+            appStore.setState({ chats });
+            renderApp();
+        }
+
+        init();
+    </script>
+</body>
 </html>

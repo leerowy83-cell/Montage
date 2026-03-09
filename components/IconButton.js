@@ -1,0 +1,1 @@
+export const IconButton = (iconClass) => `<button class="btn-icon"><i class="${iconClass}"></i></button>`;

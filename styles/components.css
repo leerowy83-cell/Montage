@@ -1,0 +1,4 @@
+.avatar { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; }
+.btn-icon { background: none; border: none; cursor: pointer; color: var(--wa-gray); font-size: 20px; padding: 8px; border-radius: 50%; transition: background 0.2s; }
+.btn-icon:hover { background: rgba(0,0,0,0.05); }
+.badge { background: var(--wa-green); color: white; border-radius: 10px; padding: 2px 6px; font-size: 12px; font-weight: bold; }

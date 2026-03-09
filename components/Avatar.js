@@ -1,0 +1,1 @@
+export const Avatar = (src) => `<img src="${src}" class="avatar" alt="user" />`;
