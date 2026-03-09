@@ -1,3 +1,17 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { 
+  ChevronRight, ChevronLeft, ChevronDown, Check, X, Star, Search, Menu, 
+  ArrowRight, ArrowLeft, Plus, Minus, Trash2, Edit, Heart, Home as HomeIcon, 
+  User, Settings, Mail, Phone, MapPin, Calendar, Clock, Eye, EyeOff, 
+  ShoppingCart, Filter, Download, Upload, Globe, Loader2, AlertCircle, 
+  CheckCircle, ExternalLink, Copy, MoreHorizontal, MoreVertical, Sun, 
+  Moon, Bell, Send, Image, Zap 
+} from 'lucide-react';
+import { 
+  BrowserRouter, Routes, Route, Link, useNavigate, useLocation 
+} from 'react-router-dom';
+
+// === Types ===
 interface User {
   id: string;
   username: string;
@@ -96,7 +110,7 @@ const INITIAL_POSTS: Post[] = [
   },
   {
     id: 'p3',
-    userId: 'u3',
+    userId: 'u4',
     username: 'nature_lover',
     userAvatar: 'https://images.unsplash.com/photo-1527980965255-d3b416303d12?w=150',
     imageUrl: 'https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800',
@@ -118,8 +132,7 @@ const INITIAL_STORIES: Story[] = [
   { id: 's4', username: 'art_daily', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150', media: 'https://images.unsplash.com/photo-1579783902614-a3fb3927b6a5?w=800', viewed: false },
 ];
 
-// === Components ===
-
+// === Utility Styling Components ===
 const StoryBar = ({ onStoryClick }: { onStoryClick: (story: Story) => void }) => (
   <div className="flex bg-white dark:bg-zinc-950 border-b dark:border-zinc-800 p-4 space-x-4 overflow-x-auto no-scrollbar lg:bg-transparent lg:border-none lg:px-0">
     {INITIAL_STORIES.map((story) => (
@@ -259,8 +272,9 @@ const FeedItem = ({ post, onLike, onComment }: { post: Post, onLike: (id: string
   );
 };
 
+// === Main App Component ===
 export default function GramFlow() {
-  const [view, setView] = useState<'home' | 'search' | 'create' | 'profile'>('home');
+  const [view, setView] = useState<'home' | 'search' | 'create' | 'reels' | 'shop' | 'profile'>('home');
   const [posts, setPosts] = useState<Post[]>(INITIAL_POSTS);
   const [user, setUser] = useState<User>(INITIAL_USERS[0]);
   const [searchQuery, setSearchQuery] = useState('');
@@ -274,7 +288,6 @@ export default function GramFlow() {
     window.scrollTo(0, 0);
   };
 
-  // === Handlers ===
   const handleLike = (postId: string) => {
     setPosts(prev => prev.map(p => {
       if (p.id === postId) {
@@ -340,10 +353,10 @@ export default function GramFlow() {
     }
   };
 
-  // === View Sections ===
+  // === Views ===
 
   const HomeView = () => (
-    <div className="max-w-[100vw] overflow-x-hidden md:max-w-2xl mx-auto flex flex-col items-center">
+    <div className="max-w-full overflow-x-hidden md:max-w-2xl mx-auto flex flex-col items-center pb-20">
       <div className="w-full max-w-xl">
         <StoryBar onStoryClick={setActiveStory} />
         <div className="py-0 md:py-4 w-full">
@@ -366,15 +379,15 @@ export default function GramFlow() {
         <div className="relative mb-6 px-3 md:px-0">
           <Search className="absolute left-6 md:left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
           <Input 
-            className="pl-10 bg-zinc-100 dark:bg-zinc-900 border-none rounded-lg" 
+            className="pl-10 bg-zinc-100 dark:bg-zinc-900 border-none rounded-lg h-10" 
             placeholder="Search posts, people, tags..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </div>
         <div className="grid grid-cols-3 gap-[1px] md:gap-4">
-          {filteredPosts.map(post => (
-            <div key={post.id} className="aspect-square bg-zinc-200 dark:bg-zinc-800 relative group cursor-pointer overflow-hidden rounded-none md:rounded-sm">
+          {[...filteredPosts, ...posts, ...posts].map((post, idx) => (
+            <div key={`${post.id}-${idx}`} className="aspect-square bg-zinc-200 dark:bg-zinc-800 relative group cursor-pointer overflow-hidden rounded-none md:rounded-sm">
               <img src={post.imageUrl} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
               <div className="absolute inset-0 bg-black/30 opacity-0 md:group-hover:opacity-100 flex items-center justify-center text-white gap-2 md:gap-4 transition-opacity">
                 <div className="flex items-center gap-1 font-bold text-xs md:text-base"><Heart className="w-4 h-4 md:w-5 md:h-5 fill-white" /> {post.likes}</div>
@@ -389,44 +402,138 @@ export default function GramFlow() {
 
   const CreateView = () => (
     <div className="max-w-lg mx-auto px-4 py-4 md:py-8 mb-20">
-      <Card className="dark:bg-zinc-950 dark:border-zinc-800 shadow-xl">
-        <CardHeader>
-          <CardTitle className="text-xl md:text-2xl">Create New Post</CardTitle>
-          <CardDescription>Share a moment with your followers</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div 
-            className="aspect-square w-full border-2 border-dashed dark:border-zinc-800 rounded-lg flex items-center justify-center bg-zinc-50 dark:bg-zinc-900 overflow-hidden relative group cursor-pointer transition-colors hover:border-blue-500"
-            onClick={() => document.getElementById('post-upload')?.click()}
-          >
-            {uploadPreview ? (
-              <img src={uploadPreview} className="w-full h-full object-cover" />
-            ) : (
-              <div className="text-center p-6">
-                <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mx-auto mb-4 group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20 transition-colors">
-                  <Image className="w-8 h-8 text-zinc-400 group-hover:text-blue-500" />
-                </div>
-                <p className="text-sm font-medium text-zinc-900 dark:text-white">Choose a photo</p>
-                <p className="text-xs text-zinc-500 mt-1">PNG, JPG up to 10MB</p>
-              </div>
-            )}
-            <input type="file" id="post-upload" className="hidden" accept="image/*" onChange={handleFileUpload} />
+      <Card className="dark:bg-zinc-950 dark:border-zinc-800 shadow-xl overflow-hidden">
+        <CardHeader className="border-b dark:border-zinc-800">
+          <div className="flex items-center justify-between">
+            <button onClick={() => navigateTo('home')} className="text-zinc-500"><X className="w-6 h-6" /></button>
+            <CardTitle className="text-lg">Create New Post</CardTitle>
+            <Button variant="ghost" className="text-blue-500 font-bold" onClick={handleCreatePost} disabled={!uploadPreview}>Share</Button>
           </div>
-          <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-wider text-zinc-500">Caption</Label>
-            <Textarea 
-              placeholder="What's on your mind?" 
-              value={newPostCaption}
-              onChange={(e) => setNewPostCaption(e.target.value)}
-              className="resize-none h-24 dark:bg-zinc-900 dark:border-zinc-800 focus-visible:ring-1 focus-visible:ring-blue-500"
-            />
+        </CardHeader>
+        <CardContent className="p-0">
+          <div className="grid grid-cols-1 md:grid-cols-2">
+            <div 
+              className="aspect-square w-full bg-zinc-50 dark:bg-zinc-900 flex items-center justify-center relative cursor-pointer group"
+              onClick={() => document.getElementById('post-upload')?.click()}
+            >
+              {uploadPreview ? (
+                <img src={uploadPreview} className="w-full h-full object-cover" />
+              ) : (
+                <div className="text-center p-6 flex flex-col items-center">
+                  <div className="w-16 h-16 rounded-full bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center mb-4">
+                    <Image className="w-8 h-8 text-zinc-400" />
+                  </div>
+                  <p className="text-sm font-medium">Click to select photos</p>
+                </div>
+              )}
+              <input type="file" id="post-upload" className="hidden" accept="image/*" onChange={handleFileUpload} />
+            </div>
+            <div className="p-4 flex flex-col gap-4">
+              <div className="flex items-center gap-2">
+                <Avatar className="w-8 h-8">
+                  <AvatarImage src={user.avatar} />
+                </Avatar>
+                <span className="font-semibold text-sm">{user.username}</span>
+              </div>
+              <Textarea 
+                placeholder="Write a caption..." 
+                value={newPostCaption}
+                onChange={(e) => setNewPostCaption(e.target.value)}
+                className="flex-1 resize-none border-none focus-visible:ring-0 p-0 text-sm h-32 md:h-full bg-transparent"
+              />
+              <Separator />
+              <div className="flex items-center justify-between text-sm py-1 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded px-1">
+                <span>Add location</span> <MapPin className="w-4 h-4 text-zinc-400" />
+              </div>
+              <div className="flex items-center justify-between text-sm py-1 cursor-pointer hover:bg-zinc-50 dark:hover:bg-zinc-900 rounded px-1">
+                <span>Accessibility</span> <ChevronDown className="w-4 h-4 text-zinc-400" />
+              </div>
+            </div>
           </div>
         </CardContent>
-        <CardFooter className="flex justify-between md:justify-end gap-3 pt-2">
-          <Button variant="ghost" onClick={() => navigateTo('home')} className="md:px-8">Cancel</Button>
-          <Button onClick={handleCreatePost} disabled={!uploadPreview} className="md:px-8 bg-blue-600 hover:bg-blue-700 text-white">Share Post</Button>
-        </CardFooter>
       </Card>
+    </div>
+  );
+
+  const ReelsView = () => (
+    <div className="w-full h-screen bg-black flex flex-col overflow-y-auto snap-y snap-mandatory mb-14 md:mb-0">
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="h-full w-full snap-start relative flex items-center justify-center flex-shrink-0">
+          <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-black/60 z-10" />
+          <img 
+            src={`https://images.unsplash.com/photo-${1500000000000 + i}?w=800&auto=format&fit=crop`} 
+            className="w-full h-full object-cover" 
+            alt="Reel content"
+          />
+          <div className="absolute bottom-6 left-4 right-16 z-20 text-white">
+            <div className="flex items-center gap-2 mb-3">
+              <Avatar className="w-8 h-8 border border-white">
+                <AvatarImage src={INITIAL_USERS[1].avatar} />
+              </Avatar>
+              <span className="font-bold text-sm">sarah_design</span>
+              <Button variant="outline" size="sm" className="h-7 text-xs bg-white/10 border-white text-white">Follow</Button>
+            </div>
+            <p className="text-sm line-clamp-2">Exploring the world one pixel at a time... #motion #reels #vibes</p>
+            <div className="flex items-center gap-2 mt-2">
+              <div className="p-1 bg-white/20 rounded flex items-center gap-1 text-[10px]">
+                <Clock className="w-3 h-3" /> Original Audio
+              </div>
+            </div>
+          </div>
+          <div className="absolute bottom-6 right-4 z-20 flex flex-col items-center gap-6 text-white">
+            <div className="flex flex-col items-center">
+              <Heart className="w-7 h-7" />
+              <span className="text-xs mt-1">24.5k</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <Mail className="w-7 h-7" />
+              <span className="text-xs mt-1">102</span>
+            </div>
+            <div className="flex flex-col items-center">
+              <Send className="w-7 h-7" />
+            </div>
+            <MoreVertical className="w-6 h-6" />
+            <div className="w-8 h-8 rounded bg-white/20 border-2 border-white animate-pulse" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+
+  const ShopView = () => (
+    <div className="max-w-5xl mx-auto px-4 py-4 mb-20">
+      <div className="flex items-center justify-between mb-6">
+        <h1 className="text-2xl font-bold">Shop</h1>
+        <div className="flex gap-4">
+          <Download className="w-6 h-6" />
+          <Menu className="w-6 h-6" />
+        </div>
+      </div>
+      <div className="relative mb-4">
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 w-4 h-4" />
+        <Input className="pl-10 bg-zinc-100 dark:bg-zinc-900 border-none rounded-lg h-9" placeholder="Search shops" />
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+        <div className="p-4 bg-zinc-100 dark:bg-zinc-900 rounded-xl flex items-center justify-between">
+          <span className="font-bold">Shops</span>
+          <ChevronRight className="w-5 h-5 text-zinc-400" />
+        </div>
+        <div className="p-4 bg-zinc-100 dark:bg-zinc-900 rounded-xl flex items-center justify-between">
+          <span className="font-bold">Editors' Picks</span>
+          <ChevronRight className="w-5 h-5 text-zinc-400" />
+        </div>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-1 md:gap-4">
+        {[1,2,3,4,5,6].map(i => (
+          <div key={i} className="aspect-square bg-zinc-100 dark:bg-zinc-800 relative group overflow-hidden md:rounded-lg">
+            <img src={`https://images.unsplash.com/photo-${1600000000000 + i}?w=400&fit=crop`} className="w-full h-full object-cover" alt="Product" />
+            <div className="absolute bottom-2 left-2 right-2 bg-black/40 backdrop-blur-sm p-2 rounded text-white opacity-0 group-hover:opacity-100 transition-opacity">
+              <p className="text-xs font-bold truncate">Premium Item #{i}</p>
+              <p className="text-[10px]">$49.99</p>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 
@@ -447,28 +554,28 @@ export default function GramFlow() {
           <div className="flex flex-col md:flex-row md:items-center gap-4 mb-6">
             <h1 className="text-xl font-medium dark:text-zinc-100">{user.username}</h1>
             <div className="flex gap-2 justify-center md:justify-start">
-              <Button size="sm" variant="secondary" className="font-semibold px-4" onClick={() => toast("Feature disabled in demo")}>Edit Profile</Button>
+              <Button size="sm" variant="secondary" className="font-semibold px-4">Edit Profile</Button>
               <Button size="sm" variant="secondary" className="px-2 aspect-square"><Settings className="w-4 h-4" /></Button>
             </div>
           </div>
           
           <div className="flex justify-around md:justify-start md:gap-10 border-y md:border-none py-3 md:py-0 mb-6 border-zinc-100 dark:border-zinc-900">
-            <div className="flex flex-col md:flex-row gap-1 items-center md:items-baseline">
+            <div className="flex flex-col md:flex-row gap-1 items-center">
               <span className="font-bold dark:text-zinc-100">{user.postsCount}</span>
-              <span className="text-xs md:text-sm text-zinc-500 md:ml-1">posts</span>
+              <span className="text-xs md:text-sm text-zinc-500">posts</span>
             </div>
-            <div className="flex flex-col md:flex-row gap-1 items-center md:items-baseline">
+            <div className="flex flex-col md:flex-row gap-1 items-center">
               <span className="font-bold dark:text-zinc-100">{user.followers.toLocaleString()}</span>
-              <span className="text-xs md:text-sm text-zinc-500 md:ml-1">followers</span>
+              <span className="text-xs md:text-sm text-zinc-500">followers</span>
             </div>
-            <div className="flex flex-col md:flex-row gap-1 items-center md:items-baseline">
+            <div className="flex flex-col md:flex-row gap-1 items-center">
               <span className="font-bold dark:text-zinc-100">{user.following.toLocaleString()}</span>
-              <span className="text-xs md:text-sm text-zinc-500 md:ml-1">following</span>
+              <span className="text-xs md:text-sm text-zinc-500">following</span>
             </div>
           </div>
           
-          <div className="px-2 md:px-0">
-            <p className="font-bold text-sm dark:text-zinc-100 mb-0.5">{user.fullName}</p>
+          <div className="text-left px-2 md:px-0">
+            <p className="font-bold text-sm dark:text-zinc-100">{user.fullName}</p>
             <p className="text-sm whitespace-pre-line leading-relaxed dark:text-zinc-300">{user.bio}</p>
           </div>
         </div>
@@ -477,174 +584,145 @@ export default function GramFlow() {
       <Separator className="mb-2 md:mb-8 dark:bg-zinc-900" />
       
       <Tabs defaultValue="posts" className="w-full">
-        <TabsList className="w-full justify-around bg-transparent border-none p-0 h-12">
-          <TabsTrigger value="posts" className="flex-1 md:flex-none gap-2 px-4 md:px-10 data-[state=active]:border-t-2 border-zinc-900 dark:border-zinc-100 rounded-none h-full transition-all">
-            <Image className="w-4 h-4" /> <span className="hidden md:inline text-[11px] tracking-widest font-bold">POSTS</span>
+        <TabsList className="w-full justify-around bg-transparent border-none p-0 h-11">
+          <TabsTrigger value="posts" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-zinc-900 dark:data-[state=active]:border-zinc-100 bg-transparent shadow-none">
+            <Image className="w-5 h-5" />
           </TabsTrigger>
-          <TabsTrigger value="saved" className="flex-1 md:flex-none gap-2 px-4 md:px-10 data-[state=active]:border-t-2 border-zinc-900 dark:border-zinc-100 rounded-none h-full transition-all">
-            <Heart className="w-4 h-4" /> <span className="hidden md:inline text-[11px] tracking-widest font-bold">SAVED</span>
+          <TabsTrigger value="reels" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-zinc-900 dark:data-[state=active]:border-zinc-100 bg-transparent shadow-none">
+            <Zap className="w-5 h-5" />
           </TabsTrigger>
-          <TabsTrigger value="tagged" className="flex-1 md:flex-none gap-2 px-4 md:px-10 data-[state=active]:border-t-2 border-zinc-900 dark:border-zinc-100 rounded-none h-full transition-all">
-            <User className="w-4 h-4" /> <span className="hidden md:inline text-[11px] tracking-widest font-bold">TAGGED</span>
+          <TabsTrigger value="tagged" className="flex-1 rounded-none border-b-2 border-transparent data-[state=active]:border-zinc-900 dark:data-[state=active]:border-zinc-100 bg-transparent shadow-none">
+            <User className="w-5 h-5" />
           </TabsTrigger>
         </TabsList>
-        <TabsContent value="posts" className="mt-1 md:mt-6">
-          <div className="grid grid-cols-3 gap-[1px] md:gap-4 lg:gap-8">
-            {posts.filter(p => p.userId === user.id).map(post => (
-              <div key={post.id} className="aspect-square bg-zinc-200 dark:bg-zinc-800 relative group cursor-pointer overflow-hidden">
+        <TabsContent value="posts" className="mt-2">
+          <div className="grid grid-cols-3 gap-1 md:gap-4 lg:gap-8">
+            {posts.filter(p => p.userId === user.id).map((post, idx) => (
+              <div key={`${post.id}-${idx}`} className="aspect-square bg-zinc-200 dark:bg-zinc-800 relative group cursor-pointer overflow-hidden">
                 <img src={post.imageUrl} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
-                <div className="absolute inset-0 bg-black/30 opacity-0 md:group-hover:opacity-100 flex items-center justify-center text-white gap-2 md:gap-6 transition-opacity">
-                  <div className="flex items-center gap-1 font-bold text-xs md:text-base"><Heart className="w-4 h-4 md:w-5 md:h-5 fill-white" /> {post.likes}</div>
-                  <div className="flex items-center gap-1 font-bold text-xs md:text-base"><Mail className="w-4 h-4 md:w-5 md:h-5 fill-white" /> {post.comments.length}</div>
-                </div>
               </div>
             ))}
           </div>
         </TabsContent>
-        <TabsContent value="saved" className="mt-20 text-center">
-            <div className="max-w-[280px] mx-auto text-zinc-500">
-                <Heart className="w-12 h-12 mx-auto mb-4 opacity-20" />
-                <p className="text-xl font-bold dark:text-white">Save photos and videos</p>
-                <p className="text-sm mt-2">When you save photos and videos, they'll appear here.</p>
-            </div>
+        <TabsContent value="reels" className="mt-2 text-center py-20">
+          <Zap className="w-12 h-12 opacity-10 mx-auto" />
+          <p className="text-zinc-500 mt-2">No reels yet</p>
+        </TabsContent>
+        <TabsContent value="tagged" className="mt-2 text-center py-20">
+          <User className="w-12 h-12 opacity-10 mx-auto" />
+          <p className="text-zinc-500 mt-2">Photos of you</p>
         </TabsContent>
       </Tabs>
     </div>
   );
 
   return (
-    <div className={cn("min-h-screen", isDarkMode ? "dark bg-zinc-950 text-zinc-50" : "bg-white md:bg-zinc-50 text-zinc-900")}>
-      {/* Header Desktop & Mobile */}
+    <div className={cn("min-h-screen flex flex-col", isDarkMode ? "dark bg-zinc-950 text-zinc-50" : "bg-white text-zinc-900")}>
+      {/* Header */}
       <nav className="sticky top-0 z-[60] bg-white dark:bg-zinc-950 border-b dark:border-zinc-800 h-14 md:h-16 flex items-center px-4 w-full">
         <div className="max-w-5xl mx-auto w-full flex items-center justify-between">
           <h1 
-            className="text-xl md:text-2xl font-bold font-serif tracking-tight cursor-pointer"
+            className="text-xl md:text-2xl font-bold font-serif tracking-tight cursor-pointer italic"
             onClick={() => navigateTo('home')}
           >
             GramFlow
           </h1>
           
           <div className="hidden md:flex relative flex-1 max-w-[250px] mx-8">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-500" />
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-zinc-400" />
             <Input 
-              className="pl-9 py-1 h-9 bg-zinc-100 dark:bg-zinc-900 border-none rounded-md w-full focus-visible:ring-1 focus-visible:ring-zinc-400" 
+              className="pl-9 py-1 h-9 bg-zinc-100 dark:bg-zinc-900 border-none rounded-md" 
               placeholder="Search" 
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <div className="flex items-center gap-2 md:gap-5">
-            <Button variant="ghost" size="icon" className="md:flex" onClick={() => setIsDarkMode(!isDarkMode)}>
-              {isDarkMode ? <Sun className="w-5 h-5 md:w-6 md:h-6" /> : <Moon className="w-5 h-5 md:w-6 md:h-6" />}
-            </Button>
-            <Bell className="w-5 h-5 md:w-6 md:h-6 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => toast("3 new notifications from today")} />
-            <div className="md:hidden">
-               <Send className="w-5 h-5 cursor-pointer hover:opacity-70 transition-opacity" />
-            </div>
+          <div className="flex items-center gap-3 md:gap-5">
+            <button onClick={() => setIsDarkMode(!isDarkMode)}>
+              {isDarkMode ? <Sun className="w-6 h-6" /> : <Moon className="w-6 h-6" />}
+            </button>
+            <Bell className="w-6 h-6 cursor-pointer hover:opacity-70 transition-opacity" onClick={() => toast("Notifications cleared")} />
+            <Send className="w-6 h-6 md:hidden cursor-pointer" />
           </div>
         </div>
       </nav>
 
-      {/* Main Container */}
-      <main className="min-h-screen pt-0 md:pt-6">
+      {/* Content Area */}
+      <main className="flex-1 w-full min-h-screen">
         {view === 'home' && <HomeView />}
         {view === 'search' && <SearchView />}
         {view === 'create' && <CreateView />}
+        {view === 'reels' && <ReelsView />}
+        {view === 'shop' && <ShopView />}
         {view === 'profile' && <ProfileView />}
       </main>
 
-      {/* Navigation - Bottom for Mobile, Left/Right layout for wide screens technically doable but following standard Instagram approach */}
-      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-950 border-t dark:border-zinc-800 z-[60] h-14 md:h-16 flex items-center justify-around px-2 max-w-full md:max-w-2xl mx-auto md:mb-4 md:rounded-2xl md:shadow-2xl md:border">
-        <button onClick={() => navigateTo('home')} className={cn("p-3 flex-1 flex justify-center transition-all", view === 'home' ? "scale-110" : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200")}>
-          <Home className={cn("w-6 h-6", view === 'home' && "fill-current text-zinc-900 dark:text-white")} />
+      {/* Navigation - Bottom Bar */}
+      <div className="fixed bottom-0 left-0 right-0 bg-white dark:bg-zinc-950 border-t dark:border-zinc-800 z-[70] h-14 flex items-center justify-around px-2">
+        <button onClick={() => navigateTo('home')} className={cn("p-2", view === 'home' ? "text-zinc-900 dark:text-white" : "text-zinc-400")}>
+          <HomeIcon className={cn("w-6 h-6", view === 'home' && "fill-current")} />
         </button>
-        <button onClick={() => navigateTo('search')} className={cn("p-3 flex-1 flex justify-center transition-all", view === 'search' ? "scale-110" : "text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200")}>
-          <Search className={cn("w-6 h-6", view === 'search' && "stroke-[3px] text-zinc-900 dark:text-white")} />
+        <button onClick={() => navigateTo('search')} className={cn("p-2", view === 'search' ? "text-zinc-900 dark:text-white" : "text-zinc-400")}>
+          <Search className={cn("w-6 h-6", view === 'search' && "stroke-[3px]")} />
         </button>
-        <button onClick={() => navigateTo('create')} className={cn("p-3 flex-1 flex justify-center group")}>
-          <Plus className={cn("w-8 h-8 md:w-9 md:h-9 bg-zinc-100 dark:bg-zinc-900 rounded-xl p-1.5 border dark:border-zinc-800 group-hover:scale-110 transition-transform", view === 'create' ? "bg-zinc-900 text-white dark:bg-white dark:text-black" : "text-zinc-500")} />
+        <button onClick={() => navigateTo('reels')} className={cn("p-2", view === 'reels' ? "text-zinc-900 dark:text-white" : "text-zinc-400")}>
+          <Zap className={cn("w-6 h-6", view === 'reels' && "fill-current")} />
         </button>
-        <button onClick={() => toast("Favorites coming soon!")} className="p-3 flex-1 flex justify-center text-zinc-500 hover:text-zinc-800 dark:hover:text-zinc-200">
-          <Heart className="w-6 h-6" />
+        <button onClick={() => navigateTo('shop')} className={cn("p-2", view === 'shop' ? "text-zinc-900 dark:text-white" : "text-zinc-400")}>
+          <ShoppingCart className={cn("w-6 h-6", view === 'shop' && "fill-current")} />
         </button>
-        <button onClick={() => navigateTo('profile')} className={cn("p-2.5 flex-1 flex justify-center transition-all")}>
-          <div className={cn("p-[1.5px] rounded-full", view === 'profile' ? "bg-zinc-900 dark:bg-white scale-110" : "bg-transparent")}>
-            <div className="p-[1px] bg-white dark:bg-zinc-950 rounded-full">
-              <Avatar className="w-6 h-6">
-                <AvatarImage src={user.avatar} className="object-cover" />
-                <AvatarFallback>U</AvatarFallback>
-              </Avatar>
-            </div>
-          </div>
+        <button onClick={() => navigateTo('profile')} className="p-1">
+          <Avatar className={cn("w-7 h-7 border", view === 'profile' ? "border-zinc-900 dark:border-white" : "border-transparent")}>
+            <AvatarImage src={user.avatar} className="object-cover" />
+          </Avatar>
         </button>
       </div>
 
-      {/* Story Viewer Overlay */}
+      {/* Stories Overlay */}
       {activeStory && (
-        <div className="fixed inset-0 z-[100] bg-black md:bg-zinc-900/95 flex flex-col items-center justify-center animate-in fade-in duration-200">
-          {/* Progress Bar Container */}
-          <div className="absolute top-2 md:top-4 left-2 right-2 md:left-4 md:right-4 flex gap-1 z-[110]">
-             <div className="h-[2px] md:h-1 flex-1 bg-zinc-600/50 rounded overflow-hidden">
-                <div className="h-full bg-white animate-progress-story" onAnimationEnd={() => setActiveStory(null)} />
+        <div className="fixed inset-0 z-[100] bg-zinc-950 flex flex-col items-center justify-center animate-in fade-in duration-300">
+          <div className="absolute top-2 left-2 right-2 flex gap-1 z-[110]">
+             <div className="h-0.5 flex-1 bg-zinc-600 rounded overflow-hidden">
+                <div 
+                  className="h-full bg-white transition-all duration-[6000ms] linear w-0" 
+                  style={{ width: activeStory ? '100%': '0%' }}
+                  onTransitionEnd={() => setActiveStory(null)} 
+                />
              </div>
           </div>
           
-          {/* Header */}
-          <div className="absolute top-6 left-4 md:top-10 md:left-6 flex items-center gap-3 z-[110]">
-            <Avatar className="w-8 h-8 border border-white/20">
-              <AvatarImage src={activeStory.avatar} className="object-cover" />
-              <AvatarFallback>S</AvatarFallback>
+          <div className="absolute top-6 left-4 flex items-center gap-3 z-[110]">
+            <Avatar className="w-8 h-8 ring-2 ring-red-500">
+              <AvatarImage src={activeStory.avatar} />
             </Avatar>
-            <div className="flex flex-col">
-                <span className="text-white font-bold text-sm leading-none">{activeStory.username}</span>
-                <span className="text-white/60 text-[10px] mt-1">2h ago</span>
-            </div>
+            <span className="text-white font-bold text-sm">{activeStory.username}</span>
           </div>
           
-          <button className="absolute top-6 right-4 md:top-10 md:right-6 z-[110] text-white/80 hover:text-white" onClick={() => setActiveStory(null)}>
+          <button className="absolute top-6 right-4 z-[110] text-white" onClick={() => setActiveStory(null)}>
             <X className="w-8 h-8" />
           </button>
           
-          {/* Media Content */}
-          <div className="w-full h-full md:h-[90vh] md:max-w-[450px] md:rounded-xl md:shadow-2xl relative overflow-hidden flex items-center bg-black">
-            <img src={activeStory.media} alt="Story content" className="w-full h-auto max-h-full object-contain" />
-          </div>
-
-          {/* Social Interactions */}
-          <div className="absolute bottom-6 md:bottom-10 left-0 right-0 px-6 flex gap-4 max-w-lg mx-auto z-[110]">
+          <img src={activeStory.media} className="h-full w-full object-contain bg-black" alt="Story" />
+          
+          <div className="absolute bottom-6 left-0 right-0 px-6 flex gap-4 max-w-lg mx-auto z-[110]">
              <Input 
-                className="bg-transparent border-white/30 text-white placeholder:text-white/50 rounded-full h-11 focus-visible:ring-white/30" 
+                className="bg-zinc-900/50 border-white/20 text-white rounded-full h-11" 
                 placeholder={`Reply to ${activeStory.username}...`} 
-                autoFocus 
              />
-             <div className="flex gap-4 items-center">
-                 <button className="text-white hover:scale-110 transition-transform"><Heart className="w-7 h-7" /></button>
-                 <button className="text-white hover:scale-110 transition-transform"><Send className="w-7 h-7" /></button>
-             </div>
+             <Heart className="w-7 h-7 text-white mt-2" />
+             <Send className="w-7 h-7 text-white mt-2" />
           </div>
         </div>
       )}
 
+      {/* Global CSS */}
       <style>{`
-        @keyframes story-progress {
-          from { width: 0%; }
-          to { width: 100%; }
-        }
-        .animate-progress-story {
-          animation: story-progress 6s linear forwards;
-        }
-        .no-scrollbar::-webkit-scrollbar {
-          display: none;
-        }
-        .no-scrollbar {
-          -ms-overflow-style: none;
-          scrollbar-width: none;
-        }
-        @media (max-width: 640px) {
-            body {
-                overscroll-behavior-y: contain;
-            }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @keyframes progress-story {
+          0% { width: 0%; }
+          100% { width: 100%; }
         }
       `}</style>
     </div>
