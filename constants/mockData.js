@@ -1,12 +1,21 @@
-export const MOCK_CHATS = [
-  { id: 1, name: 'Alice Smith', lastMessage: 'See you at 5!', time: '10:45 AM', avatar: 'https://i.pravatar.cc/150?u=alice', unread: 2, online: true },
-  { id: 2, name: 'Dev Team', lastMessage: 'Deployment successful 🚀', time: '9:30 AM', avatar: 'https://i.pravatar.cc/150?u=dev', unread: 0, online: false },
-  { id: 3, name: 'Mom', lastMessage: 'Call me when you are free', time: 'Yesterday', avatar: 'https://i.pravatar.cc/150?u=mom', unread: 0, online: true },
-  { id: 4, name: 'John Doe', lastMessage: 'Did you see the news?', time: 'Yesterday', avatar: 'https://i.pravatar.cc/150?u=john', unread: 5, online: false }
-];
+export const MOCK_USER = {
+  id: 'me',
+  name: 'Alex Rivera',
+  avatar: 'https://i.pravatar.cc/150?u=alex',
+  status: 'Productive'
+};
+
+export const MOCK_CONTACT = {
+  id: 1,
+  name: 'Sarah Jenkins',
+  avatar: 'https://i.pravatar.cc/150?u=sarah',
+  online: true,
+  role: 'Senior Designer'
+};
 
 export const MOCK_MESSAGES = [
-  { id: 101, chatId: 1, text: 'Hey, are we still meeting?', sender: 'Alice Smith', timestamp: '10:40 AM', isMe: false },
-  { id: 102, chatId: 1, text: 'Yes! I am on my way.', sender: 'Me', timestamp: '10:42 AM', isMe: true },
-  { id: 103, chatId: 1, text: 'See you at 5!', sender: 'Alice Smith', timestamp: '10:45 AM', isMe: false }
+  { id: 1, text: 'Hi Alex, did you review the latest mocks?', sender: 'Sarah Jenkins', timestamp: '10:00 AM', isMe: false },
+  { id: 2, text: 'Hey Sarah! Just looking at them now. The typography looks much cleaner.', sender: 'Me', timestamp: '10:05 AM', isMe: true },
+  { id: 3, text: 'Glad you like it! I adjusted the spacing on the dashboard too.', sender: 'Sarah Jenkins', timestamp: '10:06 AM', isMe: false },
+  { id: 4, text: 'Perfect. Let\'s sync at 2 PM to finalize.', sender: 'Me', timestamp: '10:10 AM', isMe: true }
 ];

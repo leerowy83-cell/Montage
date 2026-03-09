@@ -1,0 +1,28 @@
+.header { 
+  height: 70px; 
+  border-bottom: 1px solid var(--border); 
+  display: flex; 
+  align-items: center; 
+  padding: 0 24px; 
+  justify-content: space-between;
+  background: var(--bg-card);
+  z-index: 10;
+}
+.header-info { display: flex; align-items: center; gap: 12px; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: #34C759; }
+.status-text { font-size: 13px; color: var(--text-muted); }
+
+.back-btn {
+  display: none;
+  margin-right: 12px;
+  transition: transform 0.2s ease;
+}
+
+.back-btn:active {
+  transform: scale(0.9);
+}
+
+@media (max-width: 768px) {
+  .back-btn { display: block; }
+  .header { padding: 0 16px; }
+}

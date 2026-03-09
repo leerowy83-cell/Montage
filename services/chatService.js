@@ -1,5 +1,12 @@
-import { MOCK_CHATS, MOCK_MESSAGES } from '../constants/mockData.js';
+import { MOCK_MESSAGES, MOCK_CONTACT } from '../constants/mockData.js';
 export const chatService = {
-  getChats: () => Promise.resolve(MOCK_CHATS),
-  getMessages: (chatId) => Promise.resolve(MOCK_MESSAGES.filter(m => m.chatId === chatId))
+  getMessages: () => Promise.resolve([...MOCK_MESSAGES]),
+  getContact: () => Promise.resolve(MOCK_CONTACT),
+  sendMessage: (text) => Promise.resolve({
+    id: Date.now(),
+    text,
+    sender: 'Me',
+    timestamp: new Intl.DateTimeFormat('en-US', { hour: 'numeric', minute: 'numeric' }).format(new Date()),
+    isMe: true
+  })
 };

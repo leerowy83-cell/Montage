@@ -1,6 +1,7 @@
 export const APP_CONFIG = {
-  name: 'WhatsApp Clone',
-  version: '1.0.0',
-  apiBase: 'https://api.example.com/v1',
-  refreshInterval: 5000
+  name: 'ProMessage',
+  version: '2.0.0',
+  apiBase: 'https://api.promessage.io/v1',
+  refreshInterval: 3000,
+  maxMessageLength: 1000
 };

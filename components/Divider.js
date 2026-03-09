@@ -1,0 +1,1 @@
+export const Divider = () => `<div style="height: 1px; background: var(--border); width: 100%; margin: 8px 0;"></div>`;

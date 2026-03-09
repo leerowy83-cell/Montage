@@ -1,0 +1,1 @@
+export const Tooltip = (text) => `<span class="tooltip">${text}</span>`;

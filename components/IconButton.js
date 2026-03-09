@@ -1,1 +1,5 @@
-export const IconButton = (iconClass, onClickAttr = '') => `<button class="btn-icon" ${onClickAttr}><i class="${iconClass}"></i></button>`;
+export const IconButton = (icon, onClick = '', className = 'btn-ghost') => `
+  <button class="${className}" onclick="${onClick}">
+    <i class="${icon}"></i>
+  </button>
+`;

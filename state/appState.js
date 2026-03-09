@@ -10,10 +10,11 @@ export const createStore = (initialState) => {
     subscribe: (l) => listeners.push(l)
   };
 };
+
 export const appStore = createStore({ 
-    activeChat: null, 
-    chats: [], 
+    activeContact: null,
     messages: [], 
-    user: { name: 'John Doe', status: 'Available' },
-    isMobileView: window.innerWidth <= 768
+    currentUser: null,
+    isLoading: true,
+    view: 'chat' // 'list' or 'chat' for mobile transitions
 });
